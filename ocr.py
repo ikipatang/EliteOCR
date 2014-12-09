@@ -329,16 +329,16 @@ class OCRline():
         if self.name == None:
             self.name = word
         else:
-            bbox = "bbox " + str(self.name.x1) + " " +\
-                   str(self.name.y1) + " " + str(word.x2) +\
-                   " " + str(word.y2)
+            bbox = "bbox " + unicode(self.name.x1) + " " +\
+                   unicode(self.name.y1) + " " + unicode(word.x2) +\
+                   " " + unicode(word.y2)
             self.name = OCRbox(bbox, self.name.value+" "+word.value, self.scale)
     
     def __str__(self):
-        return "OCRline: "+ str(self.items)
+        return "OCRline: "+ unicode(self.items)
     
     def __repr__(self):
-        return "OCRline: "+ str(self.items)
+        return "OCRline: "+ unicode(self.items)
             
     
 class OCRbox():
@@ -358,7 +358,7 @@ class OCRbox():
         self.optional_values = []
         
     def __str__(self):
-        return "OCRbox: "+ str(self.value)
+        return "OCRbox: "+ unicode(self.value)
     
     def __repr__(self):
-        return "OCRbox: "+ str(self.value)
+        return "OCRbox: "+ unicode(self.value)

@@ -31,7 +31,7 @@ class Settings():
         if key in self.values:
             return self.values[key]
         else:
-            raise KeyError("Key "+str(key)+" not found in settings.")
+            raise KeyError("Key "+unicode(key)+" not found in settings.")
             
     def setValue(self, key, value):
         self.reg.setValue(key, value)
@@ -117,7 +117,7 @@ class Settings():
             if logdir != "":
                 if isdir(logdir + "\\Products\\FORC-FDEV-D-1002\\Logs"):
                     self.reg.setValue('log_dir', logdir+"\\Products\\FORC-FDEV-D-1002\\Logs")
-                elif split(str(logdir))[1] == "Logs":
+                elif split(unicode(logdir))[1] == "Logs":
                     self.reg.setValue('log_dir', logdir)
                 else:
                     QMessageBox.warning(None, "Warning", "Log directory not found.\n"+\

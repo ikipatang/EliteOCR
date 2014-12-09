@@ -6,7 +6,7 @@ class BPC_Feeder():
     def __init__(self, parent, path):
         self.parent = parent
         self.path = path
-        self.delay = "5"
+        self.delay = "3"
         self.writeIni()
         self.addCSVDir()
         self.deleteOldCSV()
@@ -34,11 +34,12 @@ class BPC_Feeder():
     def run(self):
         res = self.parent.current_result
         name = res.station.name.value
-        file = self.path+"\\plugins\\BPC_Feeder\\CSV\\"+str(name).title()+".csv"
+        file = self.path+"\\plugins\\BPC_Feeder\\CSV\\"+unicode(name).title()+".csv"
         allRows = self.parent.result_table.rowCount()
-        towrite = ''
+        towrite = 'System;Station;Commodity;Sell;Buy;Demand;;Supply;;Date\n'
         for row in xrange(0, allRows):
-            line = self.parent.result_table.item(row,0).text()+";"+\
+            line = self.parent.result_table.item(row,9).text()+";"+\
+                   self.parent.result_table.item(row,0).text()+";"+\
                    self.parent.result_table.item(row,1).text()+";"+\
                    self.parent.result_table.item(row,2).text()+";"+\
                    self.parent.result_table.item(row,3).text()+";"+\
@@ -46,8 +47,7 @@ class BPC_Feeder():
                    self.parent.result_table.item(row,5).text()+";"+\
                    self.parent.result_table.item(row,6).text()+";"+\
                    self.parent.result_table.item(row,7).text()+";"+\
-                   self.parent.result_table.item(row,8).text()+";"+\
-                   self.parent.result_table.item(row,9).text()+";\n"
+                   self.parent.result_table.item(row,8).text()+";\n"
             towrite += line
         csv_file = open(file, "w")
         csv_file.write(towrite)

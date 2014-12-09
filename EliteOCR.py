@@ -66,27 +66,45 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         
     
     def loadPlugins(self):
+        """Load known plugins"""
+        #BPC Feeder by Lasse B.
         if isfile(self.settings.app_path+"\\plugins\\BPC_Feeder\\bpcfeeder_wrapper.py") and \
            isfile(self.settings.app_path+"\\plugins\\BPC_Feeder\\BPC feeder.exe"):
             plugin = imp.load_source('bpcfeeder_wrapper', self.settings.app_path+\
                                      "\\plugins\\BPC_Feeder\\bpcfeeder_wrapper.py")
-
             self.bpcfeeder = plugin.BPC_Feeder(self, self.settings.app_path)
             self.bpc_feeder_button = QPushButton(self.centralwidget)
             self.bpc_feeder_button.setText("Run BPC Feeder")
             self.bpc_feeder_button.setEnabled(False)
             self.horizontalLayout_2.addWidget(self.bpc_feeder_button)
             self.bpc_feeder_button.clicked.connect(self.bpcfeeder.run)
+            
+        #Trade Dangerous Export by gazelle (bgol)    
+        if isfile(self.settings.app_path+"\\plugins\\TD_Export\\TD_Export.py"):
+            plugin2 = imp.load_source('TD_Export', self.settings.app_path+\
+                                     "\\plugins\\TD_Export\\TD_Export.py")
+            self.tdexport = plugin2.TD_Export(self, self.settings.app_path)
+            self.tdexport_button = QPushButton(self.centralwidget)
+            self.tdexport_button.setText("Trade Dangerous Export")
+            self.tdexport_button.setEnabled(False)
+            self.horizontalLayout_2.addWidget(self.tdexport_button)
+            self.tdexport_button.clicked.connect(lambda: self.tdexport.run(self.tableToList()))
     
     def enablePluginButtons(self):
         if 'bpcfeeder' in dir(self):
             if self.bpcfeeder != None:
                 self.bpc_feeder_button.setEnabled(True)
+        if 'tdexport' in dir(self):
+            if self.tdexport != None:
+                self.tdexport_button.setEnabled(True)
         
     def disablePluginButtons(self):
         if 'bpcfeeder' in dir(self):
             if self.bpcfeeder != None:
                 self.bpc_feeder_button.setEnabled(False)
+        if 'tdexport' in dir(self):
+            if self.tdexport != None:
+                self.tdexport_button.setEnabled(False)
 
     def howToUse(self):
         QMessageBox.about(self, "How to use", "Click \"+\" and select your screenshots. Select "+\
@@ -144,7 +162,7 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
             return
         first_item = None
         for file in files:
-            item = CustomQListWidgetItem(split(str(file))[1], file, self.settings)
+            item = CustomQListWidgetItem(split(unicode(file))[1], file, self.settings)
             if first_item == None:
                 first_item = item
             self.file_list.addItem(item)
@@ -239,7 +257,7 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
     def addItemToTable(self):
         """Adds items from current OCR result line to the result table."""
         tab = self.result_table
-        res_station = str(self.station_name.currentText()).title()
+        res_station = unicode(self.station_name.currentText()).title()
         row_count = tab.rowCount()
         self.export_button.setEnabled(True)
         self.enablePluginButtons()
@@ -248,19 +266,19 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         duplicate = False
         if self.settings["remove_dupli"]:
             for i in range(row_count):
-                station = str(tab.item(i, 0).text()).title()
-                com1 = str(tab.item(i, 1).text()).title()
-                com2 = str(self.fields[0].currentText()).replace(',', '').title()
+                station = unicode(tab.item(i, 0).text()).title()
+                com1 = unicode(tab.item(i, 1).text()).title()
+                com2 = unicode(self.fields[0].currentText()).replace(',', '').title()
                 if station == res_station and com1 == com2:
                     duplicate = True
         
         if not duplicate:
             self.current_result.station.name.value = self.station_name.currentText()
             tab.insertRow(row_count)
-            newitem = QTableWidgetItem(str(res_station).title())
+            newitem = QTableWidgetItem(unicode(res_station).title())
             tab.setItem(row_count, 0, newitem)
             for n, field in enumerate(self.fields):
-                newitem = QTableWidgetItem(str(field.currentText()).replace(',', '').title())
+                newitem = QTableWidgetItem(unicode(field.currentText()).replace(',', '').title())
                 tab.setItem(row_count, n+1, newitem)
             newitem = QTableWidgetItem(self.file_list.currentItem().timestamp)
             tab.setItem(row_count, 8, newitem)
@@ -284,13 +302,13 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         for index, field, canvas, item in zip(range(0, len(self.canvases) - 1),
                                               self.fields, self.canvases, res.items):
             if index in [1, 2, 3, 5]:
-                val = str(field.currentText()).replace(',', '')
+                val = unicode(field.currentText()).replace(',', '')
                 if val:
                     snippet = self.cutImage(cres.contrast_commodities_img, item)
                     #cv2.imshow('snippet', snippet)
-                    imageFilepath = self.training_image_dir + val + '_' + str(w) + 'x' + str(h) +\
-                                    '-' + str(int(time.time())) + '-' +\
-                                    str(random.randint(10000, 100000)) + '.png'
+                    imageFilepath = self.training_image_dir + val + '_' + unicode(w) + 'x' + unicode(h) +\
+                                    '-' + unicode(int(time.time())) + '-' +\
+                                    unicode(random.randint(10000, 100000)) + '.png'
                     cv2.imwrite(imageFilepath, snippet)
 
     def nextLine(self):
@@ -418,7 +436,7 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         """Draw single result item to graphicsview"""
         res = self.current_result
         snippet = self.cutImage(res.contrast_commodities_img, item)
-        #cv2.imwrite('snippets/'+str(self.currentsnippet)+'.png',snippet)
+        #cv2.imwrite('snippets/'+unicode(self.currentsnippet)+'.png',snippet)
         #self.currentsnippet += 1
         processedimage = array2qimage(snippet)
         pix = QPixmap()
@@ -468,7 +486,7 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         scene = QGraphicsScene()
         graphicsview.setScene(scene)
         
-    def tableToList(self):
+    def tableToList(self, allow_horizontal = False):
         all_rows = self.result_table.rowCount()
         all_cols = self.result_table.columnCount()
         result_list = [["System","Station","Commodity","Sell","Buy","Demand","","Supply","","Date"]]
@@ -484,7 +502,7 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
                     self.safeStrToList(self.result_table.item(row,7).text()),
                     self.safeStrToList(self.result_table.item(row,8).text())]
             result_list.append(line)
-        if self.settings['horizontal_exp']:
+        if self.settings['horizontal_exp'] and allow_horizontal:
             result_list = map(list, zip(*result_list))
         return result_list
     
@@ -492,20 +510,20 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         try:
             return int(input)
         except:
-            return str(input)
+            return unicode(input)
     
     def exportToCsv(self, result, file):
         towrite = ""
         for row in result:
             for cell in row:
-                towrite += str(cell)+";"
+                towrite += unicode(cell)+";"
             towrite += "\n"
         csv_file = open(file, "w")
         csv_file.write(towrite)
         csv_file.close()
 
     def exportToOds(self, result, file):
-        ods = newdoc(doctype='ods', filename=str(file))
+        ods = newdoc(doctype='ods', filename=unicode(file))
         sheet = Sheet('Sheet 1', size=(len(result)+1, len(result[0])+1))
         ods.sheets += sheet
         
@@ -521,7 +539,7 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         for i in xrange(1,len(result)+1):
             for j in xrange(1,len(result[0])+1):
                 ws.cell(row = i, column = j).value = result[i-1][j-1]
-        wb.save(str(file))
+        wb.save(unicode(file))
             
     def export(self):
         if self.settings['last_export_format'] == "":
@@ -544,15 +562,15 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         if file.split(".")[-1] == "csv":
             self.settings.setValue('last_export_format', "csv")
             self.settings.sync()
-            self.exportToCsv(self.tableToList(), file)
+            self.exportToCsv(self.tableToList(True), file)
         elif file.split(".")[-1] == "ods":
             self.settings.setValue('last_export_format', "ods")
             self.settings.sync()
-            self.exportToOds(self.tableToList(), file)
+            self.exportToOds(self.tableToList(True), file)
         elif file.split(".")[-1] == "xlsx":
             self.settings.setValue('last_export_format', "xlsx")
             self.settings.sync()
-            self.exportToXlsx(self.tableToList(), file)
+            self.exportToXlsx(self.tableToList(True), file)
 
 def main():
     app = QApplication(sys.argv)

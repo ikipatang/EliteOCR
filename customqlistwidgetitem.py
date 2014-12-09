@@ -27,7 +27,7 @@ class CustomQListWidgetItem(QListWidgetItem):
         return self.addPreviewImage(color_image)
     
     def addImage(self,imagepath):
-        image = cv2.imread(str(imagepath))
+        image = cv2.imread(unicode(imagepath))
         h, w, c = image.shape
         #cut image if too long to prevent memory errors
         aspect_ratio = float(w) / (h)
@@ -50,13 +50,13 @@ class CustomQListWidgetItem(QListWidgetItem):
         
     def getTimeStamp(self):
         """Return timestamp for selected file."""
-        tmstmp = gmtime(getctime(str(self.hiddentext)))
-        file_tmstmp = str(strftime("%Y-%m-%dT%H:%M", tmstmp))
+        tmstmp = gmtime(getctime(unicode(self.hiddentext)))
+        file_tmstmp = unicode(strftime("%Y-%m-%dT%H:%M", tmstmp))
         return file_tmstmp
     
     def getFileTime(self):
         """Return creation time as an array, for searching in logs"""
-        tmstmp = localtime(getctime(str(self.hiddentext)))
+        tmstmp = localtime(getctime(unicode(self.hiddentext)))
         year = strftime("%y", tmstmp)
         month = strftime("%m", tmstmp)
         day = strftime("%d", tmstmp)
@@ -70,7 +70,7 @@ class CustomQListWidgetItem(QListWidgetItem):
         path = self.settings['log_dir']
         dir = listdir(path)
         matchfile = "^netLog."+self.filetime[0]+self.filetime[1]+self.filetime[2]
-        matchfile2 = "^netLog."+self.filetime[0]+self.filetime[1]+str(int(self.filetime[2])-1)
+        matchfile2 = "^netLog."+self.filetime[0]+self.filetime[1]+unicode(int(self.filetime[2])-1)
         matchscreen = "^{"+self.filetime[3]+":"+self.filetime[4]+":..} SCREENSHOT:"
         matchsystem = "^{[\S]*}\sSystem:"
         findname = "[(].+?[)]"
